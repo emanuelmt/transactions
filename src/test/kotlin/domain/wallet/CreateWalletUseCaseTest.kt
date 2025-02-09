@@ -1,7 +1,7 @@
 package dev.emanuelmt.domain.wallet
 
 
-import dev.emanuelmt.infra.account.InMemoryAccountRepository
+import dev.emanuelmt.domain.MEMORY_DATABASE_CONN
 import dev.emanuelmt.infra.wallet.InMemoryWalletRepository
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -13,15 +13,13 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CreateWalletUseCaseTest {
     private lateinit var useCase: CreateWalletUseCase
-    private var repository: InMemoryWalletRepository = spyk(InMemoryWalletRepository(), recordPrivateCalls = true)
+    private var repository = spyk(InMemoryWalletRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
 
     @BeforeAll
     fun initAll() {
