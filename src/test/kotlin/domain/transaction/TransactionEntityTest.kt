@@ -13,6 +13,7 @@ class TransactionEntityTest {
         fun getTransactionBalanceTypeTestCases(): Stream<Arguments> {
             val defaultTransaction = TransactionEntity("123", "123", "123", "123", 15000)
             return Stream.of(
+                Arguments.arguments(defaultTransaction, BalanceType.CASH),
                 Arguments.arguments(defaultTransaction.copy(merchantTransactionType = "321"), BalanceType.CASH),
                 Arguments.arguments(defaultTransaction.copy(merchantTransactionType = "5411"), BalanceType.FOOD),
                 Arguments.arguments(defaultTransaction.copy(merchantTransactionType = "5412"), BalanceType.FOOD),
