@@ -3,16 +3,12 @@ package dev.emanuelmt.infra.wallet
 import dev.emanuelmt.domain.wallet.BalanceType
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class InMemoryWalletRepository : WalletRepository {
-    private val database = Database.connect(
-        url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-        user = "root",
-        driver = "org.h2.Driver",
-        password = "",
-    )
+class InMemoryWalletRepository(private val database: Database) : WalletRepository {
 
     object Wallets : Table() {
         val id = varchar("id", length = 36)
@@ -24,22 +20,24 @@ class InMemoryWalletRepository : WalletRepository {
     }
 
     init {
-        transaction(database) {
+        transaction(this.database) {
             SchemaUtils.create(Wallets)
         }
     }
 
     override suspend fun save(wallet: WalletEntity) {
-        Wallets.insert {
-            it[id] = wallet.id
-            it[accountId] = wallet.accountId
-            it[type] = wallet.type
-            it[balance] = wallet.balance
+        dbQuery {
+            Wallets.insert {
+                it[id] = wallet.id
+                it[accountId] = wallet.accountId
+                it[type] = wallet.type
+                it[balance] = wallet.balance
+            }
         }
     }
 
     override suspend fun saveBatch(wallets: List<WalletEntity>) {
-        transaction {
+        dbQuery {
             Wallets.batchInsert(wallets) { wallet ->
                 this[Wallets.id] = wallet.id
                 this[Wallets.accountId] = wallet.accountId
@@ -48,4 +46,7 @@ class InMemoryWalletRepository : WalletRepository {
             }
         }
     }
+
+    private suspend fun <T> dbQuery(block: suspend () -> T): T =
+        newSuspendedTransaction(Dispatchers.IO) { block() }
 }

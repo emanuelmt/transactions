@@ -1,5 +1,7 @@
 package dev.emanuelmt
 
+import dev.emanuelmt.infra.application.configureDatabases
+import dev.emanuelmt.infra.application.configureDomainEvents
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -11,7 +13,9 @@ fun main() {
 
 fun Application.module() {
     configureSerialization()
+    configureValidation()
     configureDatabases()
-    configureRouting()
     configureExceptionHandler()
+    configureDomainEvents()
+    configureRouting()
 }
