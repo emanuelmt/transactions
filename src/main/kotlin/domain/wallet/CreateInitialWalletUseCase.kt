@@ -1,8 +1,7 @@
 package dev.emanuelmt.domain.wallet
 
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.appendTo
-import java.util.UUID
+import java.util.*
 
 @Serializable
 data class CreateInitialWalletInput(val accountId: String)
