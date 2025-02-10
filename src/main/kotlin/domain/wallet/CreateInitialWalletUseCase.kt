@@ -16,7 +16,7 @@ class CreateInitialWalletUseCase(private val repository: WalletRepository) {
         val wallets = mutableListOf<WalletEntity>()
 
         for (balanceType in BalanceType.entries){
-            val wallet = NewWallet(balanceType, input.accountId)
+            val wallet = newWallet(balanceType, input.accountId)
             wallets.add(wallet)
         }
 
