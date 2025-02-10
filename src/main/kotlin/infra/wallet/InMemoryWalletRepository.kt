@@ -47,6 +47,15 @@ class InMemoryWalletRepository(private val database: Database) : WalletRepositor
         }
     }
 
+    override suspend fun show(accountId: String): List<WalletEntity> {
+        return dbQuery {
+            Wallets.selectAll()
+                .where { Wallets.accountId eq accountId }
+                .map { WalletEntity(it[Wallets.id], it[Wallets.balance], it[Wallets.type], it[Wallets.accountId]) }
+                .toList()
+        }
+    }
+
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 }
