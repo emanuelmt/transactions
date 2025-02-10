@@ -6,7 +6,6 @@ import dev.emanuelmt.domain.wallet.WalletRepository
 import dev.emanuelmt.infra.wallet.InMemoryWalletRepository.Wallets
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -68,13 +67,6 @@ class InMemoryWalletRepository(private val database: Database) : WalletRepositor
                 .map { it.toWallet() }
                 .toList()
         }
-    }
-
-    private fun <T : InsertStatement<Any>> fromWallet(statement: T, wallet: WalletEntity) {
-        statement[Wallets.id] = wallet.id
-        statement[Wallets.accountId] = wallet.accountId
-        statement[Wallets.type] = wallet.type
-        statement[Wallets.balance] = wallet.balance
     }
 
     private suspend fun <T> dbQuery(block: suspend () -> T): T =

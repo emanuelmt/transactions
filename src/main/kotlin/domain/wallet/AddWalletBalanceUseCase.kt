@@ -1,7 +1,6 @@
 package dev.emanuelmt.domain.wallet
 
 import kotlinx.serialization.Serializable
-import java.util.UUID
 
 @Serializable
 data class AddWalletBalanceInput(val accountId: String, val balance: Int, val type: BalanceType)

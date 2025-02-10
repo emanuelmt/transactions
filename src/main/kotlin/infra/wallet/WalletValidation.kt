@@ -1,9 +1,7 @@
 package dev.emanuelmt.infra.wallet
 
 import dev.emanuelmt.domain.account.isValidAccountId
-import dev.emanuelmt.domain.account.validateAccountId
 import dev.emanuelmt.domain.wallet.AddWalletBalanceInput
-import dev.emanuelmt.domain.wallet.BalanceType
 import dev.emanuelmt.domain.wallet.CreateWalletInput
 import io.ktor.server.plugins.requestvalidation.*
 
