@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class InMemoryAccountRepository(private val database: Database) : AccountRepository {
+class DatabaseAccountRepository(private val database: Database) : AccountRepository {
 
     object Accounts : Table() {
         val id = varchar("id", length = 36)

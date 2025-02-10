@@ -11,7 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureWalletModule() {
-    val walletRepository = InMemoryWalletRepository(this.attributes[DatabaseConnectionKey])
+    val walletRepository = DatabaseWalletRepository(this.attributes[DatabaseConnectionKey])
     val createWalletUseCase = CreateWalletUseCase(walletRepository)
     val createInitialWalletUseCase = CreateInitialWalletUseCase(walletRepository)
     val showWalletsUseCase = ShowWalletsUseCase(walletRepository)

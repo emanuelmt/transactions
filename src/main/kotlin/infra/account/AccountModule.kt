@@ -19,7 +19,7 @@ fun RequestValidationConfig.accountValidation() {
 }
 
 fun Application.configureAccountModule(){
-    val accountRepository = InMemoryAccountRepository(this.attributes[DatabaseConnectionKey])
+    val accountRepository = DatabaseAccountRepository(this.attributes[DatabaseConnectionKey])
     val createAccountUseCase = CreateAccountUseCase(accountRepository, this.attributes[DomainEventPublisherKey])
 
     routing {

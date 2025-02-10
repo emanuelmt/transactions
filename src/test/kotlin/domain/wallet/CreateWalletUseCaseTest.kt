@@ -2,7 +2,7 @@ package dev.emanuelmt.domain.wallet
 
 
 import dev.emanuelmt.domain.MEMORY_DATABASE_CONN
-import dev.emanuelmt.infra.wallet.InMemoryWalletRepository
+import dev.emanuelmt.infra.wallet.DatabaseWalletRepository
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.spyk
@@ -19,7 +19,7 @@ import kotlin.test.assertNotNull
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CreateWalletUseCaseTest {
     private lateinit var useCase: CreateWalletUseCase
-    private var repository = spyk(InMemoryWalletRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
+    private var repository = spyk(DatabaseWalletRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
 
     @BeforeAll
     fun initAll() {

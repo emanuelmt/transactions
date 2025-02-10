@@ -2,7 +2,7 @@ package dev.emanuelmt.domain.account
 
 
 import dev.emanuelmt.domain.MEMORY_DATABASE_CONN
-import dev.emanuelmt.infra.account.InMemoryAccountRepository
+import dev.emanuelmt.infra.account.DatabaseAccountRepository
 import dev.emanuelmt.infra.application.InMemoryDomainEventPublisher
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -19,7 +19,7 @@ import kotlin.test.assertFailsWith
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CreateAccountUseCaseTest {
     private lateinit var useCase: CreateAccountUseCase
-    private var repository = spyk(InMemoryAccountRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
+    private var repository = spyk(DatabaseAccountRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
     private var eventPublisher = spyk(InMemoryDomainEventPublisher(), recordPrivateCalls = true)
 
     @BeforeAll
