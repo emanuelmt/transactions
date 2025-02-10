@@ -2,15 +2,14 @@ package dev.emanuelmt.infra.account
 
 import dev.emanuelmt.domain.account.AccountEntity
 import dev.emanuelmt.domain.account.AccountRepository
-import kotlinx.coroutines.Dispatchers
+import dev.emanuelmt.infra.application.DatabaseRepository
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseAccountRepository(private val database: Database) : AccountRepository {
+class DatabaseAccountRepository(private val database: Database) : AccountRepository, DatabaseRepository() {
 
     object Accounts : Table() {
         val id = varchar("id", length = 36)
@@ -33,7 +32,4 @@ class DatabaseAccountRepository(private val database: Database) : AccountReposit
             }
         }
     }
-
-    private suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
 }

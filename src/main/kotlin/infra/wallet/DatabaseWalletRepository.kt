@@ -3,14 +3,13 @@ package dev.emanuelmt.infra.wallet
 import dev.emanuelmt.domain.wallet.BalanceType
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
+import dev.emanuelmt.infra.application.DatabaseRepository
 import dev.emanuelmt.infra.wallet.DatabaseWalletRepository.Wallets
-import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseWalletRepository(private val database: Database) : WalletRepository {
+class DatabaseWalletRepository(private val database: Database) : WalletRepository, DatabaseRepository() {
 
     object Wallets : Table() {
         val id = varchar("id", length = 36)
@@ -68,9 +67,6 @@ class DatabaseWalletRepository(private val database: Database) : WalletRepositor
                 .toList()
         }
     }
-
-    private suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
 }
 
 fun ResultRow.toWallet(): WalletEntity {
