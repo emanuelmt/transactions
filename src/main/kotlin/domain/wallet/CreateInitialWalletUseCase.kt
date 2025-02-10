@@ -8,6 +8,7 @@ data class CreateInitialWalletInput(val accountId: String)
 
 @Serializable
 data class CreatedWallet(val id: String, val balance: Int, val type: BalanceType)
+@Serializable
 data class CreateInitialWalletOutput(val wallets: List<CreatedWallet>)
 
 
