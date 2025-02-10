@@ -32,7 +32,7 @@ class CreateWalletUseCaseTest {
     }
 
     @Test
-    fun `should return correct account`() = runTest {
+    fun `should return correct wallet`() = runTest {
         newSuspendedTransaction {
             val input = CreateWalletInput("walletId", 15000, BalanceType.FOOD)
             val result = useCase.execute(input)

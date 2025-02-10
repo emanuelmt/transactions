@@ -20,3 +20,12 @@ fun validateAccountId(accountId: String?): String {
 
     return accountId
 }
+
+fun isValidAccountId(accountId: String?): Boolean{
+    try {
+        validateAccountId(accountId)
+        return true
+    }catch (exception: Exception){
+        return false
+    }
+}

@@ -3,8 +3,11 @@ package dev.emanuelmt.infra.wallet
 import dev.emanuelmt.domain.wallet.BalanceType
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
+import dev.emanuelmt.infra.wallet.InMemoryWalletRepository.Wallets
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -28,10 +31,15 @@ class InMemoryWalletRepository(private val database: Database) : WalletRepositor
     override suspend fun save(wallet: WalletEntity) {
         dbQuery {
             Wallets.insert {
-                it[id] = wallet.id
-                it[accountId] = wallet.accountId
-                it[type] = wallet.type
-                it[balance] = wallet.balance
+                it.fromWallet(wallet)
+            }
+        }
+    }
+
+    override suspend fun update(wallet: WalletEntity) {
+        dbQuery {
+            Wallets.update({Wallets.id eq wallet.id}) {
+                it.fromWallet(wallet)
             }
         }
     }
@@ -39,11 +47,17 @@ class InMemoryWalletRepository(private val database: Database) : WalletRepositor
     override suspend fun saveBatch(wallets: List<WalletEntity>) {
         dbQuery {
             Wallets.batchInsert(wallets) { wallet ->
-                this[Wallets.id] = wallet.id
-                this[Wallets.accountId] = wallet.accountId
-                this[Wallets.type] = wallet.type
-                this[Wallets.balance] = wallet.balance
+                this.fromWallet(wallet)
             }
+        }
+    }
+
+    override suspend fun find(accountId: String, type: BalanceType): WalletEntity? {
+        return dbQuery {
+            Wallets.selectAll()
+                .where { (Wallets.accountId eq accountId) and (Wallets.type eq type) }
+                .map { it.toWallet() }
+                .singleOrNull()
         }
     }
 
@@ -51,11 +65,29 @@ class InMemoryWalletRepository(private val database: Database) : WalletRepositor
         return dbQuery {
             Wallets.selectAll()
                 .where { Wallets.accountId eq accountId }
-                .map { WalletEntity(it[Wallets.id], it[Wallets.balance], it[Wallets.type], it[Wallets.accountId]) }
+                .map { it.toWallet() }
                 .toList()
         }
     }
 
+    private fun <T : InsertStatement<Any>> fromWallet(statement: T, wallet: WalletEntity) {
+        statement[Wallets.id] = wallet.id
+        statement[Wallets.accountId] = wallet.accountId
+        statement[Wallets.type] = wallet.type
+        statement[Wallets.balance] = wallet.balance
+    }
+
     private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+}
+
+fun ResultRow.toWallet(): WalletEntity {
+    return WalletEntity(this[Wallets.id], this[Wallets.balance], this[Wallets.type], this[Wallets.accountId])
+}
+
+fun UpdateBuilder<Int>.fromWallet(wallet: WalletEntity) {
+    this[Wallets.id] = wallet.id
+    this[Wallets.accountId] = wallet.accountId
+    this[Wallets.type] = wallet.type
+    this[Wallets.balance] = wallet.balance
 }
