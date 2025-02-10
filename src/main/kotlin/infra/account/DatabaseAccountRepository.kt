@@ -9,14 +9,14 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
+object Accounts : Table() {
+    val id = varchar("id", length = 36)
+    val name = varchar("name", length = 50)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
 class DatabaseAccountRepository(private val database: Database) : AccountRepository, DatabaseRepository() {
-
-    object Accounts : Table() {
-        val id = varchar("id", length = 36)
-        val name = varchar("name", length = 50)
-
-        override val primaryKey = PrimaryKey(id)
-    }
 
     init {
         transaction(this.database) {

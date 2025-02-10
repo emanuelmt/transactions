@@ -4,21 +4,21 @@ import dev.emanuelmt.domain.wallet.BalanceType
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
 import dev.emanuelmt.infra.application.DatabaseRepository
-import dev.emanuelmt.infra.wallet.DatabaseWalletRepository.Wallets
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
+object Wallets : Table() {
+    val id = varchar("id", length = 36)
+    val accountId = varchar("accountId", length = 36)
+    val type = enumeration<BalanceType>("type")
+    val balance = integer("balance")
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+
 class DatabaseWalletRepository(private val database: Database) : WalletRepository, DatabaseRepository() {
-
-    object Wallets : Table() {
-        val id = varchar("id", length = 36)
-        val accountId = varchar("accountId", length = 36)
-        val type = enumeration<BalanceType>("type")
-        val balance = integer("balance")
-
-        override val primaryKey = PrimaryKey(id)
-    }
 
     init {
         transaction(this.database) {
