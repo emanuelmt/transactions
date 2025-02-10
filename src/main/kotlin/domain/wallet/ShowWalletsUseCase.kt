@@ -14,7 +14,7 @@ data class ShowWalletsOutput(val wallets: List<WalletData>)
 
 class ShowWalletsUseCase(private val repository: WalletRepository) {
     suspend fun execute(input: ShowWalletsInput): ShowWalletsOutput {
-        val wallets = this.repository.show(input.accountId)
+        val wallets = repository.show(input.accountId)
 
         if (wallets.isEmpty()) {
             throw NotFoundException()

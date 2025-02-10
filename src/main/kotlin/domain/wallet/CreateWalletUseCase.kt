@@ -13,7 +13,7 @@ class CreateWalletUseCase(private val repository: WalletRepository) {
     suspend fun execute(input: CreateWalletInput): CreateWalletOutput {
         val wallet = WalletEntity(UUID.randomUUID().toString(), input.initialBalance, input.type, input.accountId)
 
-        this.repository.save(wallet)
+        repository.save(wallet)
 
         return CreateWalletOutput(wallet.id)
     }

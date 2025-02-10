@@ -14,9 +14,9 @@ class CreateAccountUseCase(private val repository: AccountRepository, private va
     suspend fun execute(input: CreateAccountInput): CreateAccountOutput {
         val account = AccountEntity(UUID.randomUUID().toString(), input.name)
 
-        this.repository.save(account)
+        repository.save(account)
 
-        this.createdEventPublisher.publish(AccountCreatedEvent(account))
+        createdEventPublisher.publish(AccountCreatedEvent(account))
 
         return CreateAccountOutput(account.id, account.name)
     }

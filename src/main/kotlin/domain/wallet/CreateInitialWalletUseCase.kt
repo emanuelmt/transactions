@@ -1,7 +1,6 @@
 package dev.emanuelmt.domain.wallet
 
 import kotlinx.serialization.Serializable
-import java.util.*
 
 @Serializable
 data class CreateInitialWalletInput(val accountId: String)
@@ -17,11 +16,11 @@ class CreateInitialWalletUseCase(private val repository: WalletRepository) {
         val wallets = mutableListOf<WalletEntity>()
 
         for (balanceType in BalanceType.entries){
-            val wallet = WalletEntity(UUID.randomUUID().toString(), 0, balanceType, input.accountId)
+            val wallet = NewWallet(balanceType, input.accountId)
             wallets.add(wallet)
         }
 
-        this.repository.saveBatch(wallets)
+        repository.saveBatch(wallets)
 
         return CreateInitialWalletOutput(wallets.map{ wallet -> CreatedWallet(wallet.id, wallet.balance, wallet.type) })
     }
