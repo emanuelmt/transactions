@@ -1,6 +1,7 @@
 package dev.emanuelmt.infra.transaction
 
 import dev.emanuelmt.domain.transaction.FallbackTransactionAuthorizationUseCase
+import dev.emanuelmt.domain.transaction.MerchantTransactionAuthorizationUseCase
 import dev.emanuelmt.domain.transaction.SimpleTransactionAuthorizationUseCase
 import dev.emanuelmt.domain.transaction.TransactionAuthorizationInput
 import dev.emanuelmt.infra.application.getRepository
@@ -15,6 +16,7 @@ fun Application.configureTransactionModule() {
     val walletRepository = this.getRepository<DatabaseWalletRepository>()
     val simpleTransactionAuthorizationUseCase = SimpleTransactionAuthorizationUseCase(transactionRepository, walletRepository)
     val fallbackTransactionAuthorizationUseCase = FallbackTransactionAuthorizationUseCase(transactionRepository, walletRepository)
+    val merchantTransactionAuthorizationUseCase = MerchantTransactionAuthorizationUseCase(transactionRepository, walletRepository)
 
     routing {
         route("/transaction") {
@@ -27,6 +29,12 @@ fun Application.configureTransactionModule() {
             post("/fallback-authorization") {
                 val input = call.receive<TransactionAuthorizationInput>()
                 val output = fallbackTransactionAuthorizationUseCase.execute(input)
+
+                call.respond(output)
+            }
+            post("/merchant-authorization") {
+                val input = call.receive<TransactionAuthorizationInput>()
+                val output = merchantTransactionAuthorizationUseCase.execute(input)
 
                 call.respond(output)
             }
