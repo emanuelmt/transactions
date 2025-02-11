@@ -3,9 +3,12 @@ package dev.emanuelmt.domain.wallet
 
 import dev.emanuelmt.domain.MEMORY_DATABASE_CONN
 import dev.emanuelmt.infra.wallet.DatabaseWalletRepository
+import dev.emanuelmt.infra.wallet.Wallets
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.exposed.sql.deleteAll
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,6 +30,9 @@ class AddWalletBalanceUseCaseTest {
 
     @BeforeEach
     fun beforeEach() {
+        transaction {
+            Wallets.deleteAll()
+        }
         clearAllMocks()
     }
 
