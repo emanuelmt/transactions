@@ -10,14 +10,19 @@ class SimpleTransactionAuthorizationUseCase(
     suspend fun execute(input: TransactionAuthorizationInput): TransactionAuthorizationOutput {
         val balanceType = merchantTypeToBalanceType(input.merchantType)
 
-        walletRepository.find(input.accountId, balanceType)?.let { wallet ->
-            if (wallet.balance < input.amount) return TransactionAuthorizationOutput(TransactionStatusCode.InsufficientBalance)
-            wallet.subBalance(input.amount).also {
-                val transaction = newTransaction(it.id, input.merchantType, input.merchantName, input.amount)
-                transactionRepository.save(transaction) { walletRepository.update(it) }
-                return TransactionAuthorizationOutput(TransactionStatusCode.ApprovedTransaction)
+        try {
+            walletRepository.find(input.accountId, balanceType)?.let { wallet ->
+                if (wallet.balance < input.amount) return TransactionAuthorizationOutput(TransactionStatusCode.InsufficientBalance)
+                wallet.subBalance(input.amount).also {
+                    val transaction = newTransaction(it.id, input.merchantType, input.merchantName, input.amount)
+                    transactionRepository.save(transaction) { walletRepository.update(it) }
+                    return TransactionAuthorizationOutput(TransactionStatusCode.ApprovedTransaction)
+                }
             }
+        } catch (exception: Exception) {
+            println(exception)
         }
+
         return TransactionAuthorizationOutput(TransactionStatusCode.RejectedTransaction)
     }
 }
