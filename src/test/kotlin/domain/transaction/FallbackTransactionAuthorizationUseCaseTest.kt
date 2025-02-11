@@ -3,6 +3,7 @@ package dev.emanuelmt.domain.transaction
 
 import dev.emanuelmt.domain.MEMORY_DATABASE_CONN
 import dev.emanuelmt.domain.wallet.BalanceType
+import dev.emanuelmt.domain.wallet.FallbackBalanceTye
 import dev.emanuelmt.domain.wallet.addBalance
 import dev.emanuelmt.domain.wallet.newWallet
 import dev.emanuelmt.infra.transaction.DatabaseTransactionRepository
@@ -24,8 +25,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SimpleTransactionAuthorizationUseCaseTest {
-    private lateinit var useCase: SimpleTransactionAuthorizationUseCase
+class FallbackTransactionAuthorizationUseCaseTest {
+    private lateinit var useCase: FallbackTransactionAuthorizationUseCase
     private var walletRepository = spyk(DatabaseWalletRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
     private var transactionRepository =
         spyk(DatabaseTransactionRepository(MEMORY_DATABASE_CONN), recordPrivateCalls = true)
@@ -33,7 +34,7 @@ class SimpleTransactionAuthorizationUseCaseTest {
     @BeforeAll
     fun initAll() {
         mockkStatic(UUID::class)
-        this.useCase = SimpleTransactionAuthorizationUseCase(transactionRepository, walletRepository)
+        this.useCase = FallbackTransactionAuthorizationUseCase(transactionRepository, walletRepository)
     }
 
     @BeforeEach
@@ -69,22 +70,39 @@ class SimpleTransactionAuthorizationUseCaseTest {
     }
 
     @Test
-    fun `should returns rejected transaction if dont find wallet to MCC`() = runTest {
+    fun `should returns rejected transaction if dont find wallet to MCC neither fallback`() = runTest {
         val mockedAccountId = "3894eae4-216f-451a-b5a8-ca361a3597d7"
 
-        val input = TransactionAuthorizationInput(mockedAccountId, 1500, "4131", "MERCHANT TEST")
+        val input = TransactionAuthorizationInput(mockedAccountId, 1500, "5411", "MERCHANT TEST")
         val result = useCase.execute(input)
 
         assertEquals(TransactionAuthorizationOutput(TransactionStatusCode.RejectedTransaction), result)
     }
 
     @Test
-    fun `should return insufficient balance when transaction amount is greater than wallet balance`() = runTest {
+    fun `should return rejected transaction when MCC wallet balance is less than transaction amount and did not found fallback wallet`() = runTest {
         val mockedAccountId = "3894eae4-216f-451a-b5a8-ca361a3597d7"
         val mockedWalletId = "ac86166f-2463-46c8-afa7-1915aa027170"
         every { UUID.randomUUID() } returns UUID.fromString(mockedWalletId)
         val wallet = newWallet(BalanceType.FOOD, mockedAccountId).addBalance(10000)
         walletRepository.save(wallet)
+
+        val input = TransactionAuthorizationInput(mockedAccountId, 15000, "5411", "MERCHANT TEST")
+        val result = useCase.execute(input)
+
+        assertEquals(TransactionAuthorizationOutput(TransactionStatusCode.RejectedTransaction), result)
+    }
+
+    @Test
+    fun `should return insufficient balance when transaction amount is greater than fallback wallet balance`() = runTest {
+        val mockedAccountId = "3894eae4-216f-451a-b5a8-ca361a3597d7"
+        val mockedFoodWalletId = "ac86166f-2463-46c8-afa7-1915aa027170"
+        val mockedFallbackWalletId = "ac86166f-2463-46c8-afa7-1915aa844886"
+        every { UUID.randomUUID() } returns UUID.fromString(mockedFoodWalletId) andThen UUID.fromString(mockedFallbackWalletId)
+        val wallet = newWallet(BalanceType.FOOD, mockedAccountId).addBalance(10000)
+        walletRepository.save(wallet)
+        val fallbackWallet = newWallet(FallbackBalanceTye, mockedAccountId).addBalance(10000)
+        walletRepository.save(fallbackWallet)
 
         val input = TransactionAuthorizationInput(mockedAccountId, 15000, "5411", "MERCHANT TEST")
         val result = useCase.execute(input)
