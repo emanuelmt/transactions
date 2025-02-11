@@ -11,22 +11,16 @@ import dev.emanuelmt.infra.wallet.DatabaseWalletRepository
 import dev.emanuelmt.infra.wallet.Wallets
 import dev.emanuelmt.infra.wallet.toWallet
 import io.mockk.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import org.h2.jdbc.JdbcSQLTransactionRollbackException
-import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.deleteAll
-import org.jetbrains.exposed.sql.exists
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.sql.SQLSyntaxErrorException
 import java.util.*
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
