@@ -3,28 +3,11 @@ package dev.emanuelmt.domain.transaction
 import dev.emanuelmt.domain.wallet.*
 
 class FallbackTransactionAuthorizationUseCase(
-    private val transactionRepository: TransactionRepository,
+    transactionRepository: TransactionRepository,
     private val walletRepository: WalletRepository
-) {
-    suspend fun execute(input: TransactionAuthorizationInput): TransactionAuthorizationOutput {
-        try {
-            determineWallet(input)?.let { walletToUse ->
-                if (!walletToUse.hasSufficientBalance(input.amount)) return TransactionAuthorizationOutput(
-                    TransactionStatusCode.InsufficientBalance
-                )
-                walletToUse.subBalance(input.amount).also {
-                    val transaction = newTransaction(it.id, input.merchantType, input.merchantName, input.amount)
-                    transactionRepository.save(transaction) { walletRepository.update(it) }
-                    return TransactionAuthorizationOutput(TransactionStatusCode.ApprovedTransaction)
-                }
-            }
-        } catch (exception: Exception) {
-            println(exception)
-        }
-        return TransactionAuthorizationOutput(TransactionStatusCode.RejectedTransaction)
-    }
+): TransactionAuthorizationUseCaseBase(transactionRepository, walletRepository) {
 
-    private suspend fun determineWallet(
+    override suspend fun determineWallet(
         input: TransactionAuthorizationInput
     ): WalletEntity? {
         val balanceType = merchantTypeToBalanceType(input.merchantType)
