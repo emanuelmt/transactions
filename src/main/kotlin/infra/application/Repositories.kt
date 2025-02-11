@@ -1,6 +1,7 @@
 package dev.emanuelmt.infra.application
 
 import dev.emanuelmt.infra.account.DatabaseAccountRepository
+import dev.emanuelmt.infra.transaction.DatabaseTransactionRepository
 import dev.emanuelmt.infra.wallet.DatabaseWalletRepository
 import io.ktor.server.application.*
 import io.ktor.util.*
@@ -20,6 +21,7 @@ abstract class DatabaseRepository() {
 fun Application.configureRepositories() {
     DatabaseWalletRepository(this.attributes[DatabaseConnectionKey]).instantiate<DatabaseWalletRepository>(this)
     DatabaseAccountRepository(this.attributes[DatabaseConnectionKey]).instantiate<DatabaseAccountRepository>(this)
+    DatabaseTransactionRepository(this.attributes[DatabaseConnectionKey]).instantiate<DatabaseTransactionRepository>(this)
 }
 
 inline fun <reified T : DatabaseRepository> Application.getRepository(): T {

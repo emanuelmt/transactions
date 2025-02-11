@@ -1,0 +1,35 @@
+package dev.emanuelmt.infra.transaction
+
+import dev.emanuelmt.domain.transaction.FallbackTransactionAuthorizationUseCase
+import dev.emanuelmt.domain.transaction.SimpleTransactionAuthorizationUseCase
+import dev.emanuelmt.domain.transaction.TransactionAuthorizationInput
+import dev.emanuelmt.infra.application.getRepository
+import dev.emanuelmt.infra.wallet.DatabaseWalletRepository
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+
+fun Application.configureTransactionModule() {
+    val transactionRepository = this.getRepository<DatabaseTransactionRepository>()
+    val walletRepository = this.getRepository<DatabaseWalletRepository>()
+    val simpleTransactionAuthorizationUseCase = SimpleTransactionAuthorizationUseCase(transactionRepository, walletRepository)
+    val fallbackTransactionAuthorizationUseCase = FallbackTransactionAuthorizationUseCase(transactionRepository, walletRepository)
+
+    routing {
+        route("/transaction") {
+            post("/simple-authorization") {
+                val input = call.receive<TransactionAuthorizationInput>()
+                val output = simpleTransactionAuthorizationUseCase.execute(input)
+
+                call.respond(output)
+            }
+            post("/fallback-authorization") {
+                val input = call.receive<TransactionAuthorizationInput>()
+                val output = fallbackTransactionAuthorizationUseCase.execute(input)
+
+                call.respond(output)
+            }
+        }
+    }
+}
