@@ -100,7 +100,30 @@ curl --request GET \
 ```
 
 ## Controle de Concorrrência (L4)
-Para evitar que múltiplas transações sejam processadas simultaneamente na mesma conta, o projeto utiliza o Redlock implementado com Redis. Essa abordagem garante que, ao iniciar uma transação, um lock é adquirido para a conta, impedindo que outra transação seja processada até que o lock seja liberado.
+
+Se tratando de transações simultâneas encaro algumas opções para lidar com a situação questionada de forma que não gere inconsistências no saldo.
+
+### Locks Distribuídos (Redlock com Redis):
+- **Prós:** Baixa latência, escalabilidade e isolamento entre instâncias distribuídas.
+- **Contras:** Requer Redis e configuração adequada do lock.
+
+### Lock Pessimista no Banco de Dados:
+- **Prós:** Garante consistência usando FOR UPDATE.
+- **Contras:** Pode aumentar a latência e causar deadlocks em alta concorrência.
+
+### Lock Otimista no Banco de Dados:
+- **Prós:** Não bloqueia dados durante a transação.
+- **Contras:** Pode gerar muitos retries se houver conflito, afetando a performance.
+
+### **Por que escolhi o Redlock?**
+Para nosso cenário, onde a transação precisa ser processada em menos de 100ms e a integridade do saldo é fundamental, o Redlock se destaca por:
+- **Rapidez:** Opera com baixa latência, ideal para respostas síncronas.
+- **Escalabilidade:** Funciona bem em ambientes distribuídos (múltiplas instâncias/containers).
+- **Isolamento:** Garante que somente uma transação por conta seja processada simultaneamente.
+
+Em resumo, o Redlock oferece o equilíbrio ideal entre desempenho, escalabilidade e consistência para nosso autorizador de transações.
+
+
 
 ### Execução do Projeto
 Para garantir o funcionamento independente do ambiente de execução, utilizei o Docker para que a aplicação seja executada em containers. Para isso, para executar o projeto, basta você ter o Docker em sua máquina e executar o seguinte comando na raiz do projeto para iniciar os containers:
