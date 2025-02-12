@@ -103,6 +103,8 @@ curl --request GET \
 Para evitar que múltiplas transações sejam processadas simultaneamente na mesma conta, o projeto utiliza o Redlock implementado com Redis. Essa abordagem garante que, ao iniciar uma transação, um lock é adquirido para a conta, impedindo que outra transação seja processada até que o lock seja liberado.
 
 ### Execução do Projeto
-Execute o seguinte comando na raiz do projeto para iniciar os containers:
-docker compose up --build
+Para garantir o funcionamento independente do ambiente de execução, utilizei o Docker para que a aplicação seja executada em containers. Para isso, para executar o projeto, basta você ter o Docker em sua máquina e executar o seguinte comando na raiz do projeto para iniciar os containers:
+
+```docker compose up --build```
+
 A aplicação será exposta na porta 8080 (acessível em http://127.0.0.1:8080).
