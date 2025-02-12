@@ -8,6 +8,14 @@ fun WalletEntity.addBalance(balance: Int): WalletEntity {
     return this.copy(balance = this.balance + balance)
 }
 
+fun WalletEntity.subBalance(balance: Int): WalletEntity {
+    return this.copy(balance = this.balance - balance)
+}
+
+fun WalletEntity.hasSufficientBalance(balance: Int): Boolean {
+    return this.balance >= balance
+}
+
 fun newWallet(balanceType: BalanceType, accountId: String): WalletEntity{
     return WalletEntity(UUID.randomUUID().toString(), 0, balanceType, accountId)
 }

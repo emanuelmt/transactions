@@ -3,23 +3,22 @@ package dev.emanuelmt.infra.wallet
 import dev.emanuelmt.domain.wallet.BalanceType
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
-import dev.emanuelmt.infra.wallet.DatabaseWalletRepository.Wallets
-import kotlinx.coroutines.Dispatchers
+import dev.emanuelmt.infra.application.DatabaseRepository
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class DatabaseWalletRepository(private val database: Database) : WalletRepository {
+object Wallets : Table() {
+    val id = varchar("id", length = 36)
+    val accountId = varchar("accountId", length = 36)
+    val type = enumeration<BalanceType>("type")
+    val balance = integer("balance")
 
-    object Wallets : Table() {
-        val id = varchar("id", length = 36)
-        val accountId = varchar("accountId", length = 36)
-        val type = enumeration<BalanceType>("type")
-        val balance = integer("balance")
+    override val primaryKey = PrimaryKey(id)
+}
 
-        override val primaryKey = PrimaryKey(id)
-    }
+
+class DatabaseWalletRepository(private val database: Database) : WalletRepository, DatabaseRepository() {
 
     init {
         transaction(this.database) {
@@ -68,9 +67,6 @@ class DatabaseWalletRepository(private val database: Database) : WalletRepositor
                 .toList()
         }
     }
-
-    private suspend fun <T> dbQuery(block: suspend () -> T): T =
-        newSuspendedTransaction(Dispatchers.IO) { block() }
 }
 
 fun ResultRow.toWallet(): WalletEntity {

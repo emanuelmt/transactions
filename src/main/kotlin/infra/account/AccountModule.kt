@@ -2,8 +2,8 @@ package dev.emanuelmt.infra.account
 
 import dev.emanuelmt.domain.account.CreateAccountInput
 import dev.emanuelmt.domain.account.CreateAccountUseCase
-import dev.emanuelmt.infra.application.DatabaseConnectionKey
 import dev.emanuelmt.infra.application.DomainEventPublisherKey
+import dev.emanuelmt.infra.application.getRepository
 import io.ktor.server.application.*
 import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.request.*
@@ -19,7 +19,7 @@ fun RequestValidationConfig.accountValidation() {
 }
 
 fun Application.configureAccountModule(){
-    val accountRepository = DatabaseAccountRepository(this.attributes[DatabaseConnectionKey])
+    val accountRepository = this.getRepository<DatabaseAccountRepository>()
     val createAccountUseCase = CreateAccountUseCase(accountRepository, this.attributes[DomainEventPublisherKey])
 
     routing {

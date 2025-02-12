@@ -3,15 +3,15 @@ package dev.emanuelmt.infra.wallet
 import dev.emanuelmt.domain.account.AccountCreatedEvent
 import dev.emanuelmt.domain.account.validateAccountId
 import dev.emanuelmt.domain.wallet.*
-import dev.emanuelmt.infra.application.DatabaseConnectionKey
 import dev.emanuelmt.infra.application.DomainEventPublisherKey
+import dev.emanuelmt.infra.application.getRepository
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureWalletModule() {
-    val walletRepository = DatabaseWalletRepository(this.attributes[DatabaseConnectionKey])
+    val walletRepository = this.getRepository<DatabaseWalletRepository>()
     val createWalletUseCase = CreateWalletUseCase(walletRepository)
     val createInitialWalletUseCase = CreateInitialWalletUseCase(walletRepository)
     val showWalletsUseCase = ShowWalletsUseCase(walletRepository)
