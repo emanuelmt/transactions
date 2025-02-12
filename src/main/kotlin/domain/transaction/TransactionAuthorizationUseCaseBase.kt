@@ -1,21 +1,29 @@
 package dev.emanuelmt.domain.transaction
 
+import dev.emanuelmt.domain.application.RequestLocker
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
 import dev.emanuelmt.domain.wallet.hasSufficientBalance
 import dev.emanuelmt.domain.wallet.subBalance
 
 abstract class TransactionAuthorizationUseCaseBase(
+    private val requestLocker: RequestLocker,
     private val transactionRepository: TransactionRepository,
-    private val walletRepository: WalletRepository
+    private val walletRepository: WalletRepository,
 ) {
     suspend fun execute(input: TransactionAuthorizationInput): TransactionAuthorizationOutput {
+        val lock = requestLocker.getLock(input.accountId)
+
+        if (!lock.tryLock()) TransactionAuthorizationOutput(TransactionStatusCode.RejectedTransaction)
+
         try {
             determineWallet(input)?.let { wallet ->
                 return this.processTransaction(input, wallet)
             }
         } catch (exception: Exception) {
             println(exception)
+        } finally {
+            lock.releaseLock()
         }
 
         return TransactionAuthorizationOutput(TransactionStatusCode.RejectedTransaction)
@@ -36,5 +44,5 @@ abstract class TransactionAuthorizationUseCaseBase(
         }
     }
 
-    protected abstract suspend fun determineWallet(input:TransactionAuthorizationInput): WalletEntity?
+    protected abstract suspend fun determineWallet(input: TransactionAuthorizationInput): WalletEntity?
 }
