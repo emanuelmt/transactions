@@ -1,12 +1,14 @@
 package dev.emanuelmt.domain.transaction
 
+import dev.emanuelmt.domain.application.RequestLocker
 import dev.emanuelmt.domain.wallet.WalletEntity
 import dev.emanuelmt.domain.wallet.WalletRepository
 
 class MerchantTransactionAuthorizationUseCase(
+    requestLocker: RequestLocker,
     transactionRepository: TransactionRepository,
     private val walletRepository: WalletRepository,
-) : TransactionAuthorizationUseCaseBase(transactionRepository, walletRepository) {
+) : TransactionAuthorizationUseCaseBase(requestLocker, transactionRepository, walletRepository) {
 
     override suspend fun determineWallet(
         input: TransactionAuthorizationInput

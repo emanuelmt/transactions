@@ -4,6 +4,7 @@ import dev.emanuelmt.domain.transaction.FallbackTransactionAuthorizationUseCase
 import dev.emanuelmt.domain.transaction.MerchantTransactionAuthorizationUseCase
 import dev.emanuelmt.domain.transaction.SimpleTransactionAuthorizationUseCase
 import dev.emanuelmt.domain.transaction.TransactionAuthorizationInput
+import dev.emanuelmt.infra.application.RequestLockerKey
 import dev.emanuelmt.infra.application.getRepository
 import dev.emanuelmt.infra.wallet.DatabaseWalletRepository
 import io.ktor.server.application.*
@@ -12,11 +13,15 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Application.configureTransactionModule() {
+    val requestLocker = this.attributes[RequestLockerKey]
     val transactionRepository = this.getRepository<DatabaseTransactionRepository>()
     val walletRepository = this.getRepository<DatabaseWalletRepository>()
-    val simpleTransactionAuthorizationUseCase = SimpleTransactionAuthorizationUseCase(transactionRepository, walletRepository)
-    val fallbackTransactionAuthorizationUseCase = FallbackTransactionAuthorizationUseCase(transactionRepository, walletRepository)
-    val merchantTransactionAuthorizationUseCase = MerchantTransactionAuthorizationUseCase(transactionRepository, walletRepository)
+    val simpleTransactionAuthorizationUseCase =
+        SimpleTransactionAuthorizationUseCase(requestLocker, transactionRepository, walletRepository)
+    val fallbackTransactionAuthorizationUseCase =
+        FallbackTransactionAuthorizationUseCase(requestLocker, transactionRepository, walletRepository)
+    val merchantTransactionAuthorizationUseCase =
+        MerchantTransactionAuthorizationUseCase(requestLocker, transactionRepository, walletRepository)
 
     routing {
         route("/transaction") {
